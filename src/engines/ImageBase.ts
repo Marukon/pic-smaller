@@ -1,10 +1,20 @@
+import { Mimes } from "@/mimes";
+
 export interface ImageInfo {
   key: number;
   name: string;
   width: number;
   height: number;
   blob: Blob;
+  bitmap?: ImageBitmap;
 }
+
+export const PREVIEW_MAX_SIZE = 256;
+export const OXI_PNG_LEVEL = 2;
+export const OXI_PNG_EXTREME_LEVEL = 6;
+export const MAX_CONCURRENCY = 3;
+export const MAX_CANVAS_DIMENSION = 16384;
+export const MAX_FILE_SIZE_WARNING = 50 * 1024 * 1024;
 
 export interface CompressOption {
   preview: {
@@ -31,8 +41,8 @@ export interface CompressOption {
       paperSize: string;
       orientation: "portrait" | "landscape";
       reference: "width" | "height";
-      cropPx: number;
-      offsetPx: number;
+      cropPx?: number;
+      offsetPx?: number;
     };
   };
   format: {
@@ -41,10 +51,12 @@ export interface CompressOption {
   };
   jpeg: {
     quality: number; // 0-1
+    extreme: boolean;
   };
   png: {
     colors: number; // 2-256
     dithering: number; // 0-1
+    extreme: boolean;
   };
   gif: {
     colors: number; // 2-256
@@ -90,6 +102,10 @@ export abstract class ImageBase {
   ) {}
 
   abstract compress(): Promise<ProcessOutput>;
+
+  setBitmap(bitmap: ImageBitmap) {
+    this.info.bitmap = bitmap;
+  }
 
   /**
    * Get output image dimension, based on resize param
@@ -369,7 +385,7 @@ export abstract class ImageBase {
    */
   async preview(): Promise<ProcessOutput> {
     const { width, height, x, y } = this.getPreviewDimension();
-    const blob = await this.createBlob(width, height, x, y);
+    const blob = await this.createBlob(width, height, 1, x, y);
     return {
       width,
       height,
@@ -389,11 +405,10 @@ export abstract class ImageBase {
   }> {
     const canvas = new OffscreenCanvas(width, height);
     const context = canvas.getContext("2d")!;
-    const image = await createImageBitmap(this.info.blob);
+    const image = this.info.bitmap ?? (await createImageBitmap(this.info.blob));
 
     const method = this.option.resize.method;
     if (method && ["setCropRatio", "setCropSize", "presetCrop"].includes(method)) {
-      // Crop mode only
       context?.drawImage(
         image,
         cropX,
@@ -406,7 +421,6 @@ export abstract class ImageBase {
         height,
       );
     } else {
-      // Resize mode only
       context?.drawImage(
         image,
         0,
@@ -421,6 +435,7 @@ export abstract class ImageBase {
     }
 
     image.close();
+    this.info.bitmap = undefined;
     return { canvas, context };
   }
 
@@ -436,13 +451,15 @@ export abstract class ImageBase {
   async createBlob(
     width: number,
     height: number,
-    quality = 0.6,
+    quality: number,
     cropX = 0,
     cropY = 0,
   ) {
     const { canvas } = await this.createCanvas(width, height, cropX, cropY);
     const opiton: ImageEncodeOptions = {
-      type: this.info.blob.type,
+      type: this.option.format.target
+        ? Mimes[this.option.format.target]
+        : this.info.blob.type,
       quality,
     };
     return canvas.convertToBlob(opiton);

@@ -1,17 +1,26 @@
 // 台湾繁体
 
 import { LocaleData } from "@/type";
-import zhTW from "antd/locale/zh_TW";
 
 const localeData: LocaleData = {
-  antLocale: zhTW,
   logo: "圖小小",
+  siteTitle:
+    "圖小小 - 在線批量壓縮 JPEG、PNG、WEBP、AVIF、HEIC、SVG 和 GIF 圖片",
+  siteDescription:
+    "在瀏覽器中安全壓縮 JPEG、PNG、WEBP、AVIF、HEIC、SVG 和 GIF 圖片。批量縮放、裁剪和格式轉換，全程本機處理，無需上傳。",
   initial: "初始化中",
   previewHelp: "拖曳分割線對比壓縮效果：左邊是原始圖，右邊是壓縮圖",
+  heif: {
+    previewUnavailable: "瀏覽器無法直接顯示 HEIC/HEIF 原圖，因此暫不支援壓縮前後比較。",
+    originalPreserved: "未指定輸出格式，已保留 HEIC/HEIF 原檔；如需縮放或壓縮，請選擇輸出格式。",
+  },
+  errors: {
+    animatedUnsupported: "不支援壓縮動畫 AVIF/WebP 圖片，已保留原檔。",
+  },
   uploadCard: {
     title: "選取文件到這裡，支援拖曳文件和資料夾",
     subTitle: "開源的批量圖片壓縮工具，支援 %s 格式",
-    pasteHint: "💡 提示：您也可以複製圖片後按 Ctrl+V (Cmd+V) 貼上",
+    pasteHint: "提示：您也可以複製圖片後按 Ctrl+V (Cmd+V) 貼上",
   },
   listAction: {
     batchAppend: "大量新增",
@@ -35,7 +44,7 @@ const localeData: LocaleData = {
   },
   optionPannel: {
     failTip: "無法更小，請調整參數後重試",
-    help: "Pic Smaller是一款大量圖片壓縮應用，對選項的修改將套用到所有圖片上",
+    help: "圖小小是一款大量圖片壓縮應用，對選項的修改將套用到所有圖片上",
     resizeLable: "調整圖片尺寸",
     jpegLable: "JPEG/WEBP參數",
     pngLable: "PNG參數",
@@ -59,6 +68,8 @@ const localeData: LocaleData = {
     resetBtn: "重置選項",
     confirmBtn: "應用選項",
     qualityTitle: "設定輸出圖片品質（0-1）",
+    extremeMode: "極限模式",
+    extremeModeHint: "處理速度會更慢，但通常可產生更小的檔案。",
     colorsDesc: "設定輸出顏色數量（2-256）",
     pngDithering: "設定抖色係數（0-1）",
     gifDithering: "開啟抖色",

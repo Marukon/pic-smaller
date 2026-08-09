@@ -1,16 +1,25 @@
 import { LocaleData } from "@/type";
-import frFR from "antd/locale/fr_FR";
 
 const localeData: LocaleData = {
-  antLocale: frFR,
-  logo: "Pic Smaller",
+  logo: "PicSmaller",
+  siteTitle:
+    "PicSmaller - Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images intelligently",
+  siteDescription:
+    "Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images securely in your browser. Batch resize, crop, and convert formats — all processed locally.",
   initial: "Initialisation",
   previewHelp:
     "Faites glisser la ligne de séparation pour comparer l'effet de compression : l'image de gauche est l'image originale, celle de droite est l'image compressée",
+  heif: {
+    previewUnavailable: "Le navigateur ne peut pas afficher directement l’image HEIC/HEIF originale. La comparaison avant/après n’est donc pas disponible.",
+    originalPreserved: "Aucun format de sortie n’a été sélectionné. Le fichier HEIC/HEIF original a donc été conservé. Sélectionnez un format pour le redimensionner ou le compresser.",
+  },
+  errors: {
+    animatedUnsupported: "La compression des AVIF/WebP animés n'est pas prise en charge ; le fichier d'origine a été conservé.",
+  },
   uploadCard: {
     title: "Déposez vos images ici",
     subTitle: "Formats supportés : %s",
-    pasteHint: "💡 Collez avec Ctrl+V ou glissez vos images ici",
+    pasteHint: "Collez avec Ctrl+V ou glissez vos images ici",
   },
   listAction: {
     batchAppend: "Ajouter des fichiers",
@@ -35,7 +44,7 @@ const localeData: LocaleData = {
   optionPannel: {
     failTip:
       "Impossible de réduire la taille, veuillez ajuster les paramètres et réessayer.",
-    help: "Pic Smaller est une application de compression d'images par lot. Les modifications apportées aux options seront appliquées à toutes les images.",
+    help: "PicSmaller est une application de compression d'images par lot. Les modifications apportées aux options seront appliquées à toutes les images.",
     resizeLable: "Redimensionner l'image",
     jpegLable: "Paramètres JPEG/WEBP",
     pngLable: "Paramètres PNG",
@@ -59,6 +68,8 @@ const localeData: LocaleData = {
     resetBtn: "Réinitialiser",
     confirmBtn: "Appliquer",
     qualityTitle: "Qualité de l'image de sortie (0-1)",
+    extremeMode: "Mode extrême",
+    extremeModeHint: "Le traitement sera plus lent, mais produira généralement un fichier plus petit.",
     colorsDesc: "Nombre de couleurs de sortie (2-256)",
     pngDithering: "Coefficient de tramage (0-1)",
     gifDithering: "Activer le tramage",

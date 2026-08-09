@@ -1,16 +1,25 @@
 import { LocaleData } from "@/type";
-import enUS from "antd/locale/en_US";
 
 const localeData: LocaleData = {
-  antLocale: enUS,
-  logo: "Pic Smaller",
+  logo: "PicSmaller",
+  siteTitle:
+    "PicSmaller - Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images intelligently",
+  siteDescription:
+    "Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images securely in your browser. Batch resize, crop, and convert formats — all processed locally.",
   initial: "Initializing",
   previewHelp:
     "Drag the dividing line to compare the compression effect: the left is the original image, the right is the compressed image",
+  heif: {
+    previewUnavailable: "The browser cannot display the original HEIC/HEIF image, so before-and-after comparison is unavailable.",
+    originalPreserved: "No output format was selected, so the original HEIC/HEIF file was preserved. Select an output format to resize or compress it.",
+  },
+  errors: {
+    animatedUnsupported: "Animated AVIF/WebP compression is not supported; the original file was preserved.",
+  },
   uploadCard: {
     title: "Select files here, support dragging files and folders",
     subTitle: "Open source batch image compression tool, supports %s format",
-    pasteHint: "💡 Tip: You can also paste image with Ctrl+V (Cmd+V), or drag and drop images here",
+    pasteHint: "Tip: You can also paste image with Ctrl+V (Cmd+V), or drag and drop images here",
   },
   listAction: {
     batchAppend: "Batch append",
@@ -34,7 +43,7 @@ const localeData: LocaleData = {
   },
   optionPannel: {
     failTip: "Cannot be smaller, please adjust the parameters and try again.",
-    help: "Pic Smaller is a batch image compression application. Modifications to the options will be applied to all images.",
+    help: "PicSmaller is a batch image compression application. Modifications to the options will be applied to all images.",
     resizeLable: "Resize image",
     jpegLable: "JPEG/WEBP parameters",
     pngLable: "PNG parameters",
@@ -58,6 +67,8 @@ const localeData: LocaleData = {
     resetBtn: "Reset options",
     confirmBtn: "Apply options",
     qualityTitle: "Set output image quality (0-1)",
+    extremeMode: "Extreme mode",
+    extremeModeHint: "Processing will be slower, but usually produces a smaller file.",
     colorsDesc: "Set the number of output colors (2-256)",
     pngDithering: "Set dithering coefficient (0-1)",
     gifDithering: "Turn on dithering",

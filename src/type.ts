@@ -1,10 +1,16 @@
-import { Locale } from "antd/es/locale";
-
 export interface LocaleData {
-  antLocale: Locale;
   logo: string;
+  siteTitle: string;
+  siteDescription: string;
   initial: string;
   previewHelp: string;
+  heif: {
+    previewUnavailable: string;
+    originalPreserved: string;
+  };
+  errors: {
+    animatedUnsupported: string;
+  };
   error404: {
     backHome: string;
     description: string;
@@ -73,6 +79,8 @@ export interface LocaleData {
     presetSwitchRef: string;
     presetCancelCrop: string;
     qualityTitle: string;
+    extremeMode: string;
+    extremeModeHint: string;
     resetBtn: string;
     confirmBtn: string;
     colorsDesc: string;

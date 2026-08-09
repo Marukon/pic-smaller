@@ -8,27 +8,65 @@ import { GifImage } from "./GifImage";
 import { CanvasImage } from "./CanvasImage";
 import { PngImage } from "./PngImage";
 import { AvifImage } from "./AvifImage";
-import { Mimes } from "@/mimes";
+import { getImageMime, Mimes } from "@/mimes";
 import { SvgImage } from "./SvgImage";
 import { getSvgDimension } from "./svgParse";
+import { getFinalMime } from "@/options";
+import { rejectAnimatedImage } from "./animation";
+import { JpegImage } from "./JpegImage";
 
 export interface MessageData {
   info: ImageInfo;
   option: CompressOption;
 }
 
-export interface OutputMessageData extends Omit<ImageInfo, "name" | "blob"> {
+export interface OutputMessageData extends Omit<ImageInfo, "name" | "blob" | "bitmap"> {
   compress?: ProcessOutput;
   preview?: ProcessOutput;
+  error?: string;
+  preservedOriginal?: boolean;
 }
 
 export type HandleMethod = "compress" | "preview";
+
+export function createFailureOutput(
+  data: MessageData,
+  method: HandleMethod,
+  error: unknown,
+): OutputMessageData {
+  const fallback: ProcessOutput = {
+    width: data.info.width,
+    height: data.info.height,
+    blob: data.info.blob,
+    src: URL.createObjectURL(data.info.blob),
+  };
+
+  return {
+    key: data.info.key,
+    width: data.info.width,
+    height: data.info.height,
+    error: error instanceof Error ? error.message : String(error),
+    [method]: fallback,
+  };
+}
+
+async function createInputBitmap(info: ImageInfo, mime: string) {
+  if ([Mimes.heic, Mimes.heif].includes(mime)) {
+    const { heicTo } = await import("heic-to/next");
+    return heicTo({ blob: info.blob, type: "bitmap" });
+  }
+  return createImageBitmap(info.blob);
+}
 
 export async function convert(
   data: MessageData,
   method: HandleMethod = "compress",
 ): Promise<OutputMessageData | null> {
-  const mime = data.info.blob.type.toLowerCase();
+  const mime = getImageMime({ name: data.info.name, type: data.info.blob.type });
+
+  if (method === "compress" && [Mimes.webp, Mimes.avif].includes(mime)) {
+    await rejectAnimatedImage(data.info.blob, mime);
+  }
 
   // For SVG type, do not support type convert
   if (Mimes.svg === mime) {
@@ -50,58 +88,116 @@ export async function convert(
   }
 
   // For JPG/JPEG/WEBP/AVIF/PNG/GIF type
-  const bitmap = await createImageBitmap(data.info.blob);
+  const bitmap = await createInputBitmap(data.info, mime);
   data.info.width = bitmap.width;
   data.info.height = bitmap.height;
+  data.info.bitmap = bitmap;
 
-  // Type convert logic here
-  if (
-    // Only compress task need convert
-    method === "compress" &&
-    // If there is no target type, don't need convert
-    data.option.format.target &&
-    // If target type is equal to original type, don't need convert
-    data.option.format.target !== data.info.blob.type
-  ) {
-    const target = data.option.format.target.toLowerCase();
-
-    // Currently no browsers support creation of an AVIF from a canvas
-    // So we should encode AVIF image type using webassembly, and the
-    // result blob don't need compress agin, return it directly
-    if (target === "avif") {
-      return createHandler(data, method, Mimes.avif);
-    }
-
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    const context = canvas.getContext("2d")!;
-
-    // JPEG format don't support transparent, we should set a background
-    if (["jpg", "jpeg"].includes(target)) {
-      context.fillStyle = data.option.format.transparentFill;
-      context.fillRect(0, 0, bitmap.width, bitmap.height);
-    }
-    context.drawImage(
-      bitmap,
-      0,
-      0,
-      bitmap.width,
-      bitmap.height,
-      0,
-      0,
-      bitmap.width,
-      bitmap.height,
-    );
-
-    data.info.blob = await canvas.convertToBlob({
-      type: Mimes[target],
-      quality: 1,
-    });
+  const isHeif = [Mimes.heic, Mimes.heif].includes(mime);
+  if (isHeif && method === "compress" && !data.option.format.target) {
+    bitmap.close();
+    data.info.bitmap = undefined;
+    return {
+      key: data.info.key,
+      width: data.info.width,
+      height: data.info.height,
+      preservedOriginal: true,
+      compress: {
+        width: data.info.width,
+        height: data.info.height,
+        blob: data.info.blob,
+        src: URL.createObjectURL(data.info.blob),
+      },
+    };
+  }
+  if (isHeif && method === "preview") {
+    data.option.format.target = "jpg";
   }
 
-  // Release bitmap
-  bitmap.close();
+  try {
+    // Type convert logic here
+    if (
+      // Only compress task need convert
+      method === "compress" &&
+      // If there is no target type, don't need convert
+      data.option.format.target &&
+      // If target type is equal to original type, don't need convert
+      getFinalMime(mime, data.option.format.target) !== mime
+    ) {
+      const target = data.option.format.target.toLowerCase();
 
-  return createHandler(data, method);
+      if (["avif", "png", "jpg", "jpeg"].includes(target)) {
+        return createHandler(data, method, Mimes[target]);
+      }
+
+      const handler = new CanvasImage(data.info, data.option);
+      const dim = handler.getOutputDimension();
+      const outCanvas = new OffscreenCanvas(dim.width, dim.height);
+      const outCtx = outCanvas.getContext("2d")!;
+
+      if (["jpg", "jpeg"].includes(target)) {
+        outCtx.fillStyle = data.option.format.transparentFill;
+        outCtx.fillRect(0, 0, dim.width, dim.height);
+      }
+
+      if (
+        data.option.resize.method &&
+        ["setCropRatio", "setCropSize", "presetCrop"].includes(
+          data.option.resize.method,
+        )
+      ) {
+        outCtx.drawImage(
+          bitmap,
+          dim.x,
+          dim.y,
+          dim.width,
+          dim.height,
+          0,
+          0,
+          dim.width,
+          dim.height,
+        );
+      } else {
+        outCtx.drawImage(
+          bitmap,
+          0,
+          0,
+          bitmap.width,
+          bitmap.height,
+          0,
+          0,
+          dim.width,
+          dim.height,
+        );
+      }
+
+      const blob = await outCanvas.convertToBlob({
+        type: Mimes[target],
+        quality: data.option.jpeg.quality,
+      });
+      bitmap.close();
+      data.info.bitmap = undefined;
+
+      return {
+        key: data.info.key,
+        width: dim.width,
+        height: dim.height,
+        compress: {
+          width: dim.width,
+          height: dim.height,
+          blob,
+          src: URL.createObjectURL(blob),
+        },
+      };
+    }
+
+    return createHandler(data, method, isHeif ? Mimes.jpg : undefined);
+  } catch (error) {
+    // Bitmap was not consumed yet — clean it up.
+    try { bitmap.close(); } catch {}
+    data.info.bitmap = undefined;
+    throw error;
+  }
 }
 
 export async function createHandler(
@@ -114,7 +210,9 @@ export async function createHandler(
     mime = specify;
   }
   let image: ImageBase | null = null;
-  if ([Mimes.jpg, Mimes.webp].includes(mime)) {
+  if (mime === Mimes.jpg) {
+    image = new JpegImage(data.info, data.option);
+  } else if (mime === Mimes.webp) {
     image = new CanvasImage(data.info, data.option);
   } else if (mime === Mimes.avif) {
     image = new AvifImage(data.info, data.option);
@@ -136,12 +234,22 @@ export async function createHandler(
   };
 
   if (image && method === "preview") {
-    result.preview = await image.preview();
+    try {
+      result.preview = await image.preview();
+    } catch (error) {
+      result.error = error instanceof Error ? error.message : String(error);
+      result.preview = image.failResult();
+    }
     return result;
   }
 
   if (image && method === "compress") {
-    result.compress = await image.compress();
+    try {
+      result.compress = await image.compress();
+    } catch (error) {
+      result.error = error instanceof Error ? error.message : String(error);
+      result.compress = image.failResult();
+    }
     return result;
   }
 
