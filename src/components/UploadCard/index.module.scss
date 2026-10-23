@@ -3,20 +3,24 @@
   position: relative;
   cursor: pointer;
   user-select: none;
-  background-color: #f7f7f7;
-  border: 2px dashed #e0e0e0;
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-subtle) 100%);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-sizing: border-box;
-  min-height: 320px;
-  transition: all 0.3s ease;
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 
   &:hover {
-    border-color: #078249;
-    background-color: #f9f9f9;
+    border-color: var(--color-secondary);
+    background: var(--color-action-soft);
   }
 
   &:active {
-    background-color: darken($color: #f9f9f9, $amount: 3);
+    background-color: var(--color-surface-muted);
   }
 
   > input {
@@ -24,52 +28,70 @@
   }
 
   &.active {
-    border-color: #078249;
-    background-color: rgba(7, 130, 73, 0.05);
+    border-color: var(--color-secondary);
+    background: var(--color-action-soft);
   }
 }
 
 .inner {
-  line-height: 1;
-  padding: 32px 20px;
-  
-  svg {
-    width: 64px;
-    height: 64px;
-    path {
-      fill: #078249;
-      transition: fill 0.3s ease;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 620px;
+  padding: 48px 24px;
+
+  .uploadIcon {
+    display: grid;
+    width: 72px;
+    height: 72px;
+    place-items: center;
+    color: var(--color-secondary);
+    background: var(--color-action-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    svg {
+      width: 34px;
+      height: 34px;
     }
   }
-  
-  > span:nth-child(2) {
+
+  > strong {
     margin-top: 24px;
+    color: var(--color-foreground);
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
     padding: 0 16px;
-    color: #333;
   }
-  
-  > div:nth-child(3) {
+
+  > p {
+    width: 100%;
+    box-sizing: border-box;
     margin-top: 12px;
-    color: #666;
+    margin-bottom: 0;
+    color: var(--color-text-muted);
     text-align: center;
     padding: 0 16px;
     line-height: 1.6;
     max-width: 480px;
   }
-  
+
   .pasteHint {
     margin-top: 24px;
-    color: #078249;
+    color: var(--color-primary);
     text-align: center;
-    padding: 12px 24px;
-    background-color: rgba(7, 130, 73, 0.08);
-    border-radius: 0;
+    padding: 10px 18px;
+    background-color: var(--color-action-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
     font-size: 14px;
     line-height: 1.5;
-    border-left: 4px solid #078249;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 
@@ -79,4 +101,24 @@
   position: absolute;
   top: 0;
   left: 0;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .container {
+    min-height: 280px;
+  }
+
+  .inner {
+    padding: 36px 12px;
+    > span:nth-child(2) {
+      font-size: 22px;
+    }
+    .pasteHint {
+      border-radius: var(--radius-md);
+    }
+  }
 }
