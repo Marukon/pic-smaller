@@ -1,16 +1,25 @@
 import { LocaleData } from "@/type";
-import faIR from "antd/locale/fa_IR";
 
 const localeData: LocaleData = {
-  antLocale: faIR,
-  logo: "پیک کوچولو",
+  logo: "PicSmaller",
+  siteTitle:
+    "PicSmaller - Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images intelligently",
+  siteDescription:
+    "Compress JPEG, PNG, WEBP, AVIF, HEIC, SVG and GIF images securely in your browser. Batch resize, crop, and convert formats — all processed locally.",
   initial: "در حال راه‌اندازی",
   previewHelp:
     "خط تقسیم را برای مقایسه اثر فشرده سازی بکشید: سمت چپ تصویر اصلی و سمت راست تصویر فشرده است",
+  heif: {
+    previewUnavailable: "مرورگر نمی‌تواند تصویر اصلی HEIC/HEIF را مستقیماً نمایش دهد؛ بنابراین مقایسه قبل و بعد در دسترس نیست.",
+    originalPreserved: "فرمت خروجی انتخاب نشده است، بنابراین فایل اصلی HEIC/HEIF حفظ شد. برای تغییر اندازه یا فشرده‌سازی، یک فرمت خروجی انتخاب کنید.",
+  },
+  errors: {
+    animatedUnsupported: "فشرده‌سازی AVIF/WebP متحرک پشتیبانی نمی‌شود؛ فایل اصلی حفظ شد.",
+  },
   uploadCard: {
     title: "تصاویر خود را اینجا بکشید یا انتخاب کنید",
     subTitle: "فرمت‌های پشتیبانی شده: %s",
-    pasteHint: "💡 با Ctrl+V بچسبانید یا تصاویر را بکشید",
+    pasteHint: "با Ctrl+V بچسبانید یا تصاویر را بکشید",
   },
   listAction: {
     batchAppend: "افزودن دسته‌ای",
@@ -59,6 +68,8 @@ const localeData: LocaleData = {
     resetBtn: "بازنشانی گزینه‌ها",
     confirmBtn: "اعمال گزینه‌ها",
     qualityTitle: "تنظیم کیفیت تصویر خروجی (0-1)",
+    extremeMode: "حالت فشرده‌سازی حداکثری",
+    extremeModeHint: "پردازش کندتر خواهد بود، اما معمولاً فایل کوچک‌تری تولید می‌کند.",
     colorsDesc: "تنظیم تعداد رنگ‌های خروجی (2-256)",
     pngDithering: "تنظیم ضریب دانه‌بندی (0-1)",
     gifDithering: "فعال کردن دانه‌بندی",
@@ -68,6 +79,18 @@ const localeData: LocaleData = {
     outputFormatPlaceholder: "فرمت تصویر خروجی را انتخاب کنید",
     transparentFillDesc: "انتخاب رنگ شفاف",
     cropCompareWarning: "حالت برش از پیش‌نمایش مقایسه پشتیبانی نمی‌کند",
+    presetCrop: "Preset Crop (Paper)",
+    presetPaperSize: "Paper Size",
+    presetOrientation: "Orientation",
+    presetPortrait: "Portrait",
+    presetLandscape: "Landscape",
+    presetRefWidth: "Based on width",
+    presetRefHeight: "Based on height",
+    presetCropPx: "Crop per side (px)",
+    presetOffsetPx: "Offset (px)",
+    presetCropWarning: "Image's {axis} is insufficient for {paper} ratio",
+    presetSwitchRef: "Switch reference edge",
+    presetCancelCrop: "Cancel preset crop",
   },
   error404: {
     backHome: "بازگشت به خانه",
